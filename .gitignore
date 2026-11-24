@@ -1,0 +1,33 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Credentials and private data
+credentials/
+secrets/
+*.pem
+*.key
+*.p12
+
+# Runtime and persistent data
+data/
+logs/
+redis-data/
+postgres-data/
+sessions/
+media/
+
+# n8n local data
+.n8n/
+
+# Operating system and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary files
+*.log
+*.tmp
+*.bak
