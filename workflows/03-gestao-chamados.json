@@ -1,0 +1,32 @@
+{
+  "name": "WhatsApp - Gestão de Chamados",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f587a15a-1f8b-468b-8d7a-88b446512cbc",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "093f68f9-4047-4de8-a7a9-bf33813a7429",
+  "meta": {
+    "instanceId": "73355f262f475cf7a7a43e607d0f988791f5ea548059404109996fbf6fef6932"
+  },
+  "nodeGroups": [],
+  "id": "CyOWzem9or4425jA",
+  "tags": []
+}

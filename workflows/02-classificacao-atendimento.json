@@ -1,0 +1,314 @@
+{
+  "name": "WhatsApp - Classificação e Atendimento",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        16
+      ],
+      "id": "cf41a479-d8ea-414b-b70f-d29751e8b9be",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "informational",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "cc13d3ec-ef7e-47bc-9c89-8e444058d459"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "db67e6e5-49d0-42c1-adc0-29df343b9572",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "technical_support",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "0379a924-0ec6-4eb4-a8ba-1ba2e3005a69",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "unclear",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "f16b458b-616e-4367-8e24-f2f414a55182",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst message = String($json.message || '').toLowerCase().trim();\n\nconst technicalPatterns = [\n  /não liga|nao liga/,\n  /não inicia|nao inicia/,\n  /não conecta|nao conecta/,\n  /sem internet/,\n  /internet caiu/,\n  /não imprime|nao imprime/,\n  /impressora.*erro/,\n  /computador.*travando/,\n  /computador.*lento/,\n  /tela azul/,\n  /erro ao abrir/,\n  /sistema.*não funciona|sistema.*nao funciona/\n];\n\nconst informationalPatterns = [\n  /onde (posso|devo|consigo)/,\n  /como (faço|fazer|solicito|solicitar)/,\n  /qual (é|e) o procedimento/,\n  /como abrir (um )?cadastro/,\n  /onde solicitar/\n];\n\nlet intent = 'unclear';\nlet intent_reason = 'Mensagem não classificada com segurança';\n\nif (technicalPatterns.some(pattern => pattern.test(message))) {\n  intent = 'technical_support';\n  intent_reason = 'Possível problema técnico identificado';\n} else if (informationalPatterns.some(pattern => pattern.test(message))) {\n  intent = 'informational';\n  intent_reason = 'Dúvida sobre procedimento ou informação';\n}\n\nreturn {\n  json: {\n    ...$json,\n    intent,\n    intent_reason\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        16
+      ],
+      "id": "c4fccfb3-8822-4bd2-b0f6-68ec37d4296e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1ee477a5-8f67-4f23-b760-f7cf2500dab6",
+              "name": "intent",
+              "value": "={{ $json.intent }}",
+              "type": "string"
+            },
+            {
+              "id": "a1d59774-4126-44ff-b783-e100499027cb",
+              "name": "response_type",
+              "value": "informational",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        656,
+        -176
+      ],
+      "id": "f392e38c-e766-49cc-9ac5-56c06da96a4c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f49b25a6-8112-4f01-baf0-0a1e07dc4657",
+              "name": "intent",
+              "value": "={{ $json.intent }}",
+              "type": "string"
+            },
+            {
+              "id": "63e216cd-2def-4e3d-8825-9e452e4ce1da",
+              "name": "response_type",
+              "value": "technical_support",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        656,
+        0
+      ],
+      "id": "715f6c60-f671-4ca1-ab00-4a111f7d84b7",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0f891a23-017e-48f2-9b82-00976c924a0e",
+              "name": "intent",
+              "value": "={{ $json.intent }}",
+              "type": "string"
+            },
+            {
+              "id": "84868886-d972-4c9a-862b-413f618fb6c3",
+              "name": "response_type",
+              "value": "clarification",
+              "type": "string"
+            },
+            {
+              "id": "cf6a888a-c651-4631-a89f-9505a535e48d",
+              "name": "response_message",
+              "value": "Não consegui identificar sua solicitação. Poderia explicar um pouco melhor o que está acontecendo?",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        656,
+        160
+      ],
+      "id": "383fcdd3-b9dd-41e6-8031-5381e3b442f2",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "CyOWzem9or4425jA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/CyOWzem9or4425jA",
+          "cachedResultName": "WhatsApp - Gestão de Chamados"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        880,
+        0
+      ],
+      "id": "e21f6c79-844f-4579-b39d-4b730e8d3d7c",
+      "name": "Call 'WhatsApp - Gestão de Chamados'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Call 'WhatsApp - Gestão de Chamados'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bcec85c1-1980-4f5d-90e5-c2c364788932",
+  "meta": {
+    "instanceId": "73355f262f475cf7a7a43e607d0f988791f5ea548059404109996fbf6fef6932"
+  },
+  "nodeGroups": [],
+  "id": "BubaQhr2WJ5a55xl",
+  "tags": []
+}

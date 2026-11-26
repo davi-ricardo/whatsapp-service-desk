@@ -1,0 +1,371 @@
+{
+  "name": "WhatsApp - Entrada de Mensagens",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "waha-inbound",
+        "responseMode": "=onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        -576
+      ],
+      "id": "6aeeb22c-ac62-4bb9-b4bd-dcb69078b1c8",
+      "name": "Webhook",
+      "webhookId": "62759e64-1f90-4723-8617-a9229cb1c0ae"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fb775d60-cb28-4f38-8ffc-f2fc1435ab50",
+              "name": "message_id",
+              "value": "={{ $json.body.payload.id }}",
+              "type": "string"
+            },
+            {
+              "id": "7e4758a6-b8b1-41be-b644-a9409b4ac83b",
+              "name": "sender_id",
+              "value": "={{ $json.body.payload.from}}",
+              "type": "string"
+            },
+            {
+              "id": "7016ca27-811c-4e79-aef2-d740748015fc",
+              "name": "message",
+              "value": "={{ $json.body.payload.body }}",
+              "type": "string"
+            },
+            {
+              "id": "de4d410d-deba-425e-8208-8ecc9bd9fdf3",
+              "name": "from_me",
+              "value": "={{ $json.body.payload.fromMe }}",
+              "type": "boolean"
+            },
+            {
+              "id": "a7bc2afd-d5ad-49dc-ac24-bf6d9ed4c66d",
+              "name": "event",
+              "value": "={{ $json.body.event }}",
+              "type": "string"
+            },
+            {
+              "id": "4f9929c7-2fb3-4dea-bc72-0cc42e5a7d00",
+              "name": "session",
+              "value": "={{ $json.body.session }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        -576
+      ],
+      "id": "4e6a6319-8ffc-4d0d-b3f0-4e55dc1dc4ea",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "3b3d4317-8092-498f-b84b-df8b285b50c4",
+              "leftValue": "={{ $json.event }}",
+              "rightValue": "message",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "1cd25dac-3b47-4806-8af9-05c75819dac1",
+              "leftValue": "={{ $json.from_me }}",
+              "rightValue": "is false",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        -576
+      ],
+      "id": "ea5907c1-d71a-4e26-8a98-7dc2b82a2168",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ 'whatsapp:message:' + $json.message_id}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -576
+      ],
+      "id": "272038f5-c651-4b9d-a45b-284cbd11de14",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "vMKZ2gTPwrKVLe5h",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "93470f2a-faad-4ce8-8b38-9dfdfca0f55f",
+              "leftValue": "={{ $json.propertyName == null }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        896,
+        -576
+      ],
+      "id": "4ff81eb3-e2d1-4293-b578-ea00065e6098",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=whatsapp:message:{{ $('Edit Fields').item.json.message_id }}",
+        "value": "processed",
+        "expire": true,
+        "ttl": 86400
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        -656
+      ],
+      "id": "d483e1ad-7a54-405f-abe7-545e7a36fe22",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "vMKZ2gTPwrKVLe5h",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "BubaQhr2WJ5a55xl",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/BubaQhr2WJ5a55xl",
+          "cachedResultName": "WhatsApp - Classificação e Atendimento"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        1568,
+        -576
+      ],
+      "id": "589056c3-0050-45ab-b6d4-191fd87752a7",
+      "name": "Call 'WhatsApp - Classificação e Atendimento'"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e08ebdf-bf8c-42e0-a817-609ccc8ff2f2",
+              "name": "message_id",
+              "value": "={{ $('Edit Fields').item.json.message_id }}",
+              "type": "string"
+            },
+            {
+              "id": "21436e61-0477-4940-8be1-6b0a2496833c",
+              "name": "sender_id",
+              "value": "={{ $('Edit Fields').item.json.sender_id }}",
+              "type": "string"
+            },
+            {
+              "id": "8322985b-22f8-4ce7-b0f3-780bf708b706",
+              "name": "message",
+              "value": "={{ $('Edit Fields').item.json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "7d061b04-5e25-47c7-98d3-7fd95c5f545a",
+              "name": "from_me",
+              "value": "={{ $('Edit Fields').item.json.from_me }}",
+              "type": "boolean"
+            },
+            {
+              "id": "02ac6cdd-7dbe-4125-b120-b89f78593d8b",
+              "name": "session",
+              "value": "={{ $('Edit Fields').item.json.session }}",
+              "type": "string"
+            },
+            {
+              "id": "78cad540-06f7-4ed8-a4e0-3cadd70b633f",
+              "name": "event",
+              "value": "={{ $('Edit Fields').item.json.event }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1328,
+        -656
+      ],
+      "id": "69dd6fab-d08a-4bad-bdb9-08d95da1a02f",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Redis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Call 'WhatsApp - Classificação e Atendimento'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3579882f-4382-4a5d-a998-d3eb162ce9cd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "73355f262f475cf7a7a43e607d0f988791f5ea548059404109996fbf6fef6932"
+  },
+  "nodeGroups": [],
+  "id": "D3QcBIHZ7RfNw2pw",
+  "tags": []
+}
